@@ -31,8 +31,12 @@ using std::cin;
 void processMessages(const std::string& file_name, sync_handle_t hStartEvent, sync_handle_t hInputReadySemaphore, sync_handle_t hOutputReadySemaphore, sync_handle_t hMutex);
 
 int main(int argc, char* argv[]) {
+    cout << "\n=== Message Sender Process ===\n";
+    cout << "Operating System Lab\n";
+    
     if (argc < 2) {
         cout << "Usage: " << argv[0] << " <file_name>\n";
+        cout << "Example: " << argv[0] << " messages.txt\n";
         return 1;
     }
 
@@ -95,6 +99,10 @@ int main(int argc, char* argv[]) {
 
     cout << "Event was started\n";
 
+    cout << "\n=== Commands ===\n";
+    cout << "Enter 1: Write new message\n";
+    cout << "Enter 0: Exit program\n\n";
+
     processMessages(file_name, hStartEvent, hInputReadySemaphore, hOutputReadySemaphore, hMutex);
 
     #ifdef _WIN32
@@ -112,7 +120,9 @@ int main(int argc, char* argv[]) {
 
 void processMessages(const std::string& file_name, sync_handle_t hStartEvent, sync_handle_t hInputReadySemaphore, sync_handle_t hOutputReadySemaphore, sync_handle_t hMutex) {
     std::fstream file;
-    cout << "Print 1 to write message;\nInput 0 to exit process\n";
+    cout << "=== Message Writer Interface ===\n";
+    cout << "Enter 1: Write new message\n";
+    cout << "Enter 0: Exit program\n";
     std::string key;
     cin >> key;
 

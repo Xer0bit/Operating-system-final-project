@@ -40,6 +40,10 @@ void HandleMessages(const std::string& file_name, sync_handle_t hInputReadySemap
 #endif
 
 int main() {
+    cout << "\n=== Process Communication Project ===\n";
+    cout << "Operating System Lab\n";
+    cout << "Presented to: Mr. Muneeb Saleem\n\n";
+
     std::string file_name;
     int number_of_notes;
     std::fstream file;
@@ -50,15 +54,19 @@ int main() {
         PROCESS_INFORMATION pi;
     #endif
 
-    cout << "Enter binary file name: ";
+    cout << "=== Configuration ===\n";
+    cout << "Enter binary file name (e.g., messages.txt): ";
     cin >> file_name;
-    cout << "Enter number of notes: ";
+    cout << "Enter number of notes (max messages): ";
     cin >> number_of_notes;
     file.open(file_name, std::ios::out);
     file.close();
 
-    cout << "Enter number of Sender Processes: ";
+    cout << "\nEnter number of Sender Processes to create: ";
     cin >> number_of_senders;
+
+    cout << "\n=== Starting System ===\n";
+    cout << "Initializing semaphores...\n";
 
     #ifdef _WIN32
         HANDLE hInputReadySemaphore = CreateSemaphore(NULL, 0, number_of_notes, "EnterSemaphoreStarted");
@@ -105,6 +113,9 @@ int main() {
 
         CreateSenderProcesses(file_name, number_of_senders);
     #endif
+
+    cout << "Successfully initialized! Starting sender processes...\n\n";
+    cout << "=== Message Reader Interface ===\n";
 
     HandleMessages(file_name, hInputReadySemaphore, hOutputReadySemaphore, hMutex);
 
@@ -176,14 +187,15 @@ void CreateSenderProcesses(const std::string& file_name, int number_of_senders) 
 
 void HandleMessages(const std::string& file_name, sync_handle_t hInputReadySemaphore, sync_handle_t hOutputReadySemaphore, sync_handle_t hMutex) {
     std::fstream file;
-    cout << "\nEnter 1 to read message;\nEnter 0 to exit \n";
+    cout << "\n=== Commands ===\n";
+    cout << "Enter 1: Read next message\n";
+    cout << "Enter 0: Exit program\n\n";
     int key;
     cin >> key;
     file.open(file_name, std::ios::in);
 
     while (true) {
         if (key == 1) {
-            std::string message;
             #ifdef _WIN32
                 WaitForSingleObject(hInputReadySemaphore, INFINITE);
                 WaitForSingleObject(hMutex, INFINITE);
@@ -192,8 +204,17 @@ void HandleMessages(const std::string& file_name, sync_handle_t hInputReadySemap
                 sem_wait(hMutex);
             #endif
 
-            std::getline(file, message);
-            cout << message;
+            char message[21];
+            file.read(message, 21);  // Read exactly 21 characters
+            if (file.gcount() > 0) {
+                cout << "\nReceived message: ";
+                for (int i = 0; i < 20; i++) {  // Print up to the newline character
+                    if (message[i] != '\0') {
+                        cout << message[i];
+                    }
+                }
+                cout << "\n";
+            }
 
             #ifdef _WIN32
                 ReleaseSemaphore(hOutputReadySemaphore, 1, NULL);
